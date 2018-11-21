@@ -1,8 +1,8 @@
 # PoC Tool to Analyze Batch of Images using Amazon Rekognition
 
 ## Prerequisites
-- Python
-- AWS CLI
+- Python3
+- [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/installing.html)
 
 ## How to run RIA
 
