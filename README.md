@@ -6,6 +6,8 @@
 
 ## How to run RIA
 
+- Download [ria.py](./code/ria.py)
+
 - Follow one the formats below. input-bucket is required, whereas all other parameters are optional.
     - python3 ria.py --input-bucket your-bucket
     - python3 ria.py --input-bucket your-bucket --input-directory your-input-directory --output-bucket your-bucket --output-directory your-output-directory --min-confidence 50 --collection-id your-collection --s3-expiration-time 3600 --no-csv
