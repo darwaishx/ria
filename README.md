@@ -6,7 +6,7 @@
 
 ## How to run RIA
 
-- Download [ria.py.zip](./code/ria.py.zip)
+- Download and unzip [ria.py.zip](./code/ria.py.zip)
 
 - Follow one the formats below. input-bucket is required, whereas all other parameters are optional.
     - python3 ria.py --input-bucket your-bucket
