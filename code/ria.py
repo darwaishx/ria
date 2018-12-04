@@ -97,15 +97,28 @@ class RiaInput:
         self.concurrencyControl = 100
         self.maxPages = 10
         self.maxItemsPerPage = 1000
-        self.minimumConfidence = 50
+        self.minimumConfidence = 55
         self.exportCSV = True
         self.collectionId = ""
         self.s3PresignedExpirationTime = 604800
+
+        self.runForLabels = True
+        self.runForModerationLabels = True
+        self.runForFaces = True
+        self.runForCelebrities = True
+        self.runForText = True
 
     def printAll(self):
         print("AWS Region: {}".format(self.awsRegion))
         print("Input Bucket: {}\nInput Directory: {}\nOutput Bucket: {}\nOutput Directory: {}".format(
                 self.bucketName, self.imagesDirectory, self.outputBucketName, self.outputDirectory ))
+
+        print("API-Labels: {}".format(self.runForLabels))
+        print("API-Moderation-Labels: {}".format(self.runForModerationLabels))
+        print("API-Celebrities: {}".format(self.runForCelebrities))
+        print("API-Faces: {}".format(self.runForFaces))
+        print("API-Text: {}".format(self.runForText))
+
         print("Minimum Confidence: {}".format(self.minimumConfidence))
         print("Concurrency: {}\nMax Pages: {}\nMax Items Per Page: {}\nMinimum Confidence: {}".format(
             self.concurrencyControl, self.maxPages, self.maxItemsPerPage, self.minimumConfidence))
@@ -117,6 +130,13 @@ class RiaInput:
         print("AWS Region: {}".format(self.awsRegion))
         print("Input Bucket: {}\nInput Directory: {}\nOutput Bucket: {}\nOutput Directory: {}".format(
                 self.bucketName, self.imagesDirectory, self.outputBucketName, self.outputDirectory ))
+
+        print("API-Labels: {}".format(self.runForLabels))
+        print("API-Moderation-Labels: {}".format(self.runForModerationLabels))
+        print("API-Celebrities: {}".format(self.runForCelebrities))
+        print("API-Faces: {}".format(self.runForFaces))
+        print("API-Text: {}".format(self.runForText))
+
         print("Minimum Confidence: {}".format(self.minimumConfidence))
         #print("Concurrency: {}\nMax Pages: {}\nMax Items Per Page: {}\nMinimum Confidence: {}".format(
         #    self.concurrencyControl, self.maxPages, self.maxItemsPerPage, self.minimumConfidence))
@@ -449,19 +469,30 @@ class ImageProcessor(Thread):
         if self.inputParameters.collectionId:
             fsp = FaceSearchProcessor(self.imageName, imageBinary, self.inputParameters, ado)
 
-        lp.start()
-        mlp.start()
-        clp.start()
-        tp.start()
-        fp.start()
+        if self.inputParameters.runForLabels:
+            lp.start()
+        if self.inputParameters.runForModerationLabels:
+            mlp.start()
+        if self.inputParameters.runForCelebrities:
+            clp.start()
+        if self.inputParameters.runForText:
+            tp.start()
+        if self.inputParameters.runForFaces:
+            fp.start()
         if self.inputParameters.collectionId:
             fsp.start()
 
-        lp.join()
-        mlp.join()
-        clp.join()
-        tp.join()
-        fp.join()
+
+        if self.inputParameters.runForLabels:
+            lp.join()
+        if self.inputParameters.runForModerationLabels:
+            mlp.join()
+        if self.inputParameters.runForCelebrities:
+            clp.join()
+        if self.inputParameters.runForText:
+            tp.join()
+        if self.inputParameters.runForFaces:
+            fp.join()
         if self.inputParameters.collectionId:
             fsp.join()
 
@@ -1401,8 +1432,6 @@ def getHtmlTemplateString():
     }
 
     function renderRotatedImage(imageSource, imageOrientation, boundingBoxes){
-      console.log("rotated image...")
-      console.log(imageOrientation)
       var canvas = document.getElementById('myCanvas');
       var context = canvas.getContext('2d');
 
@@ -1410,9 +1439,6 @@ def getHtmlTemplateString():
 
       imageObj.onload = function() {
         context.clearRect(0,0,canvas.width,canvas.height);
-
-        console.log("w:" + imageObj.width)
-        console.log("H:" + imageObj.height)
 
         boxWidth = imageObj.width
         boxHeight = imageObj.height
@@ -1782,13 +1808,13 @@ class OutputGenerator:
 
         csvFileUrl = ""
         if(self.inputParameters.exportCSV):
-            try:
-                print("Generating CSV...")
-                csvGenerator = CSVGenerator(self.inputParameters, self.output)
-                csvFileUrl = csvGenerator.start()
-                print("Generated CSV")
-            except Exception as e:
-                print("Failed to generate csv file. Error: {}.".format(e))
+            #try:
+            print("Generating CSV...")
+            csvGenerator = CSVGenerator(self.inputParameters, self.output)
+            csvFileUrl = csvGenerator.start()
+            print("Generated CSV")
+            #except Exception as e:
+            #print("Failed to generate csv file. Error: {}.".format(e))
 
         htmlFileUrl = ""
         dataFileUrl = ""
@@ -1806,20 +1832,42 @@ class OutputGenerator:
 # In[ ]:
 
 
-def postProcessingMessage(output):
+def postProcessingMessage(ips, output):
     total = len(output)
     successful = 0
     failed = 0
 
+    ips.runForLabels = True
+    ips.runForModerationLabels = False
+    ips.runForFaces = False
+    ips.runForCelebrities = False
+    ips.runForText = False
+
     for ei in output:
-        if((not 'Labels' in ei or ('Labels' in ei and 'Error' in ei['Labels'])) or
-           (not 'ModerationLabels' in ei or ('ModerationLabels' in ei and 'Error' in ei['ModerationLabels'])) or
-           (not 'Celebrities' in ei or ('Celebrities' in ei and 'Error' in ei['Celebrities'])) or
-           (not 'Faces' in ei or ('Faces' in ei and 'Error' in ei['Faces'])) or
-           (not 'Text' in ei or ('Text' in ei and 'Error' in ei['Text']))
-           #or ('FaceSearch' in ei and 'Error' in ei['FaceSearch'])
-          ):
+        itemFailed = False
+
+        if(ips.runForLabels and (not 'Labels' in ei or ('Labels' in ei and 'Error' in ei['Labels']))):
+            itemFailed = True
+        if(ips.runForModerationLabels and (not 'ModerationLabels' in ei or ('ModerationLabels' in ei and 'Error' in ei['ModerationLabels']))):
+            itemFailed = True
+        if(ips.runForCelebrities and (not 'Celebrities' in ei or ('Celebrities' in ei and 'Error' in ei['Celebrities']))):
+            itemFailed = True
+        if(ips.runForFaces and (not 'Faces' in ei or ('Faces' in ei and 'Error' in ei['Faces']))):
+            itemFailed = True
+        if(ips.runForText and (not 'Text' in ei or ('Text' in ei and 'Error' in ei['Text']))):
+            itemFailed = True
+
+        if itemFailed:
             failed = failed + 1
+
+        #if((not 'Labels' in ei or ('Labels' in ei and 'Error' in ei['Labels'])) or
+        #   (not 'ModerationLabels' in ei or ('ModerationLabels' in ei and 'Error' in ei['ModerationLabels'])) or
+        #   (not 'Celebrities' in ei or ('Celebrities' in ei and 'Error' in ei['Celebrities'])) or
+        #   (not 'Faces' in ei or ('Faces' in ei and 'Error' in ei['Faces'])) or
+        #   (not 'Text' in ei or ('Text' in ei and 'Error' in ei['Text']))
+        #   #or ('FaceSearch' in ei and 'Error' in ei['FaceSearch'])
+        #  ):
+        #    failed = failed + 1
 
     if(total > 0):
         successful = total - failed
@@ -1865,6 +1913,7 @@ def validateInput(event, ips):
 
     if('exportCSV' in event):
         ips.exportCSV = event['exportCSV']
+
     if('collectionId' in event):
         ips.collectionId = event['collectionId']
 
@@ -1872,6 +1921,21 @@ def validateInput(event, ips):
         ips.s3PresignedExpirationTime = event['s3PresignedExpirationTime']
         if(ips.s3PresignedExpirationTime < 0 or ips.s3PresignedExpirationTime > 604800):
             ips.s3PresignedExpirationTime = 604800
+
+    if('runForLabels' in event):
+        ips.runForLabels = event['runForLabels']
+
+    if('runForModerationLabels' in event):
+        ips.runForModerationLabels = event['runForModerationLabels']
+
+    if('runForCelebrities' in event):
+        ips.runForCelebrities = event['runForCelebrities']
+
+    if('runForFaces' in event):
+        ips.runForFaces = event['runForFaces']
+
+    if('runForText' in event):
+        ips.runForText = event['runForText']
 
     client = boto3.client('s3')
 
@@ -1903,8 +1967,6 @@ def validateInput(event, ips):
     ips.htmlFileNameWithPrefix = '{}{}-ria-html.html'.format(ips.outputDirectory, uid)
 
 
-
-
 # In[ ]:
 
 
@@ -1915,11 +1977,8 @@ def lambda_handler(event, context):
 
     output = []
 
-    # Create temp folder
-    #if not os.path.exists(self.inputParameters.tempFolderName):
-    #    os.makedir(self.inputParameters.tempFolderName)
-
     print("\nStarting RIA\n================================")
+    print("Run Mode: {}".format(event['runMode']))
     ips.printForUser()
 
     print("\nAnalyzing images\n=================================")
@@ -1927,7 +1986,9 @@ def lambda_handler(event, context):
     ia.start()
 
     print("\nAnalyzed Images\n=================================")
-    postProcessingMessage(output)
+    postProcessingMessage(ips, output)
+
+    output.sort(key=lambda x: x['ImageName'], reverse=False)
 
     print("\nGenerating output\n=================================")
     og = OutputGenerator(ips, output)
@@ -1936,50 +1997,62 @@ def lambda_handler(event, context):
     print(htmlFileUrl)
     print("\n")
 
-    #Delete temp folder
-    #if os.path.exists(self.inputParameters.tempFolderName):
-    #    shutil.rmtree(self.inputParameters.tempFolderName)
-
     return {
         "statusCode": 200,
         "body": json.dumps({'OutputHtmlUrl' : htmlFileUrl})
     }
 
+
 # In[ ]:
 
 
-def runFromCli():
+def run(cliMode, args):
 
     event = {}
+
+    if cliMode:
+        event['runMode'] = 'CLI'
+    else:
+        event['runMode'] = 'Non-CLI'
 
     isInputValid = False
 
     try:
         i = 0
-        while(i < len(sys.argv)):
-            if(sys.argv[i] == '--input-bucket'):
-                event['bucketName'] = sys.argv[i+1]
+        while(i < len(args)):
+            if(args[i] == '--input-bucket'):
+                event['bucketName'] = args[i+1]
                 i = i + 1
-            if(sys.argv[i] == '--input-directory'):
-                event['imagesDirectory'] = sys.argv[i+1]
+            if(args[i] == '--input-directory'):
+                event['imagesDirectory'] = args[i+1]
                 i = i + 1
-            if(sys.argv[i] == '--output-bucket'):
-                event['outputBucketName'] = sys.argv[i+1]
+            if(args[i] == '--output-bucket'):
+                event['outputBucketName'] = args[i+1]
                 i = i + 1
-            if(sys.argv[i] == '--output-directory'):
-                event['outputDirectory'] = sys.argv[i+1]
+            if(args[i] == '--output-directory'):
+                event['outputDirectory'] = args[i+1]
                 i = i + 1
-            if(sys.argv[i] == '--collection-id'):
-                event['collectionId'] = sys.argv[i+1]
+            if(args[i] == '--collection-id'):
+                event['collectionId'] = args[i+1]
                 i = i + 1
-            if(sys.argv[i] == '--min-confidence'):
-                event['minimumConfidence'] = int(sys.argv[i+1])
+            if(args[i] == '--min-confidence'):
+                event['minimumConfidence'] = int(args[i+1])
                 i = i + 1
-            if(sys.argv[i] == '--s3-expiration-time'):
-                event['s3PresignedExpirationTime'] = int(sys.argv[i+1])
+            if(args[i] == '--s3-expiration-time'):
+                event['s3PresignedExpirationTime'] = int(args[i+1])
                 i = i + 1
-            if(sys.argv[i] == '--no-csv'):
+            if(args[i] == '--no-csv'):
                 event['exportCSV'] = False
+            if(args[i] == '--no-api-labels'):
+                event['runForLabels'] = False
+            if(args[i] == '--no-api-moderation-labels'):
+                event['runForModerationLabels'] = False
+            if(args[i] == '--no-api-celebrities'):
+                event['runForCelebrities'] = False
+            if(args[i] == '--no-api-faces'):
+                event['runForFaces'] = False
+            if(args[i] == '--no-api-text'):
+                event['runForText'] = False
 
             i = i + 1
 
@@ -1990,7 +2063,7 @@ def runFromCli():
     except Exception as e:
         print('Invalid input. Follow one the formats below. input-bucket is required, whereas all other parameters are optional.')
         print('- python3 ria.py --input-bucket your-bucket')
-        print('- python3 ria.py --input-bucket your-bucket --input-directory your-input-directory --output-bucket your-bucket --output-directory your-output-directory --min-confidence 50 --collection-id your-collection --s3-expiration-time 3600 --no-csv')
+        print('- python3 ria.py --input-bucket your-bucket --input-directory your-input-directory --output-bucket your-bucket --output-directory your-output-directory --min-confidence 50 --collection-id your-collection --s3-expiration-time 3600 --no-csv --no-api-labels --no-api-moderation-labels --no-api-celebrities --no-api-faces --no-api-text')
 
     if(isInputValid):
         lambda_handler(event, None)
@@ -1999,10 +2072,23 @@ def runFromCli():
 # In[ ]:
 
 
-try:
-    runFromCli()
-except Exception as e:
-    print("Something went wrong:\n====================================================\n{}".format(e))
+def runFromJupyterArguments():
+    # test-sample
+    runCommand = ''
+    return runCommand.split(' ')
 
 
 # In[ ]:
+
+
+try:
+    cliMode = True
+
+    if cliMode:
+        args = sys.argv
+    else:
+        args = runFromJupyterArguments()
+
+    run(cliMode, args)
+except Exception as e:
+    print("Something went wrong:\n====================================================\n{}".format(e))
