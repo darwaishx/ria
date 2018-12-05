@@ -8,6 +8,9 @@ You can use this simple PoC tool (RIA) to quickly analyze a batch of images usin
 ## CSV Export of Metadata
 ![](assets/ria-csv.png)
 
+## Setup and Run RIA
+
+You can run this PoC tool on your local machine (MAC: Terminal/ Windows: Command Prompt) or a Jupyter Instance. If you run it from your local machine you would need to setup few pre-requisites including Python3, AWS CLI and libraries like Pillow. If you do not want to configure any of these on your local machine, you can simply use a Jupyter instance which already has all the needed pre-requisites. Follow step by step instructions below for each method.
 
 ### Run RIA from Terminal/Command Prompt
 
