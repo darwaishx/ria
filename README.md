@@ -1,4 +1,13 @@
-# Analyze Batch of Images using Amazon Rekognition
+# Analyze Images using Amazon Rekognition
+
+You can use this simple PoC tool (RIA) to quickly analyze a batch of images using Amazon Rekognition. You can run the tool by telling it where your images are in an S3 bucket. It then calls different Amazon Rekognition APIs (Labels, ModerationLabels, Faces, Celebrities, Text) for your images and generate a web app for you to visually see the results. As part of analysis it also generates a JSON and a CSV file that you can then use to further review the output.
+
+## Output UI
+![](assets/ria-html.png)
+
+## CSV Export of Metadata
+![](assets/ria-csv.png)
+
 
 ### Run RIA from Terminal/Command Prompt
 
@@ -42,12 +51,6 @@ EU (Ireland) | [![Create SageMaker Instance](http://docs.aws.amazon.com/AWSCloud
 
 8. Scroll to bottom of the Notebook and update runCommand:
     - runCommand = 'python3 ria.py --input-bucket INPUT-BUCKET --input-directory INPUT-DIRECTORY --output-bucket OUTPUT-BUCKET --output-directory OUTPUT-DIRECTORY'
-
-## Output UI
-![](assets/ria-html.png)
-
-## CSV Export of Metadata
-![](assets/ria-csv.png)
 
 ## Arguments
 
