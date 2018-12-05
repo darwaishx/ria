@@ -24,6 +24,7 @@ You can run this PoC tool on your local machine (Terminal/Command Prompt) or in 
     - python3 ria.py --input-bucket your-bucket --input-directory your-input-directory --output-bucket your-bucket --output-directory your-output-directory
 
     - python3 ria.py --input-bucket your-bucket --input-directory your-input-directory --output-bucket your-bucket --output-directory your-output-directory --min-confidence 55 --s3-expiration-time 3600 --no-csv
+4. You will see the progress as it goes through different steps of analyzing images and generating output.
 
 ### Run RIA from Jupyter
 
@@ -52,8 +53,9 @@ EU (Ireland) | [![Create SageMaker Instance](http://docs.aws.amazon.com/AWSCloud
 
 7. Click on ria, then code and then ria.ipynb to open the notebook.
 
-8. Scroll to bottom of the Notebook and update runCommand:
+8. Scroll to bottom of the Notebook and update runCommand for your S3 bucket:
     - runCommand = 'python3 ria.py --input-bucket INPUT-BUCKET --input-directory INPUT-DIRECTORY --output-bucket OUTPUT-BUCKET --output-directory OUTPUT-DIRECTORY'
+9. Click on Cell and Run All. You will see the progress as it goes through different steps of analyzing images and generating output.
 
 ## Arguments
 
