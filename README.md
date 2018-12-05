@@ -74,3 +74,7 @@ EU (Ireland) | [![Create SageMaker Instance](http://docs.aws.amazon.com/AWSCloud
   | --no-api-celebrities  | Do not call Celebrities API |
   | --no-api-faces  | Do not call Faces API |
   | --no-api-text  | Do not call Text API |
+
+## Cost
+- As you run this tool, it calls different Rekognition APIs in your AWS account. You will get charged for all the API calls made as part of the analysis.
+- If you use Jupyter Instance, it incurs cost even when you are not running this tool to analyze images. You can delete instance by deleting the CloudFormation used to create the notebook instance.
