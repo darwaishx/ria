@@ -1,4 +1,4 @@
-# Analyze Images using Amazon Rekognition
+# Batch Image Analyzer PoC Tool
 
 You can use this simple PoC tool (RIA) to quickly analyze a batch of images using Amazon Rekognition. You can run the tool by telling it where your images are in an S3 bucket. It then calls different Amazon Rekognition APIs (Labels, ModerationLabels, Faces, Celebrities, Text) for your images and generate a web app for you to visually see the results. As part of analysis it also generates a JSON and a CSV file that you can then use to further review the output.
 
