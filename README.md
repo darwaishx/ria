@@ -43,15 +43,26 @@ EU (Ireland) | [![Create SageMaker Instance](http://docs.aws.amazon.com/AWSCloud
 8. Scroll to bottom of the Notebook and update runCommand:
     - runCommand = 'python3 ria.py --input-bucket INPUT-BUCKET --input-directory INPUT-DIRECTORY --output-bucket OUTPUT-BUCKET --output-directory OUTPUT-DIRECTORY'
 
-## Arguments
-
-  - If you do not want to analyze images against all Rekognition APIs, you can add arguments below for each API you do not wish to include:
-
-  - --no-api-labels --no-api-moderation-labels --no-api-celebrities --no-api-faces --no-api-text
-  - Examaple: python3 ria.py --input-bucket your-bucket --input-directory your-input-directory --output-bucket your-bucket --output-directory your-output-directory --min-confidence 50 --no-api-celebrities --no-api-faces --no-api-text
-
 ## Output UI
 ![](assets/ria-html.png)
 
 ## CSV Export of Metadata
 ![](assets/ria-csv.png)
+
+## Arguments
+
+  | Argument  | Description |
+  | ------------- | ------------- |
+  | --input-bucket  | Name of input S3 bucket with images  |
+  | --input-directory  | Name of folder in S3 bucket with images |
+  | --output-bucket  | Name of input S3 bucket where output will be saved |
+  | --output-directory  | Name of folder in S3 bucket where output will be saved |
+  | --min-confidence  | Confidence score |
+  | --s3-expiration-time  | Expiration time for S3 Presigned URLs |
+  | --collection-id  | Name of your collection id |
+  | --no-csv  | Do not generate CSV file |
+  | --no-api-labels  | Do not call Labels API |
+  | --no-api-moderation-labels  | Do not call Moderation Labels API |
+  | --no-api-celebrities  | Do not call Celebrities API |
+  | --no-api-faces  | Do not call Faces API |
+  | --no-api-text  | Do not call Text API |
