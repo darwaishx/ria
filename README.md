@@ -10,7 +10,7 @@ You can use this simple PoC tool (RIA) to quickly analyze a batch of images usin
 
 ## Setup and Run RIA
 
-You can run this PoC tool on your local machine (Terminal/Command Prompt) or a Jupyter Instance. If you run it from your local machine you would need to setup few pre-requisites including Python3, AWS CLI and libraries like Pillow. If you do not want to configure any of these on your local machine, you can simply use a Jupyter instance which already has all the needed pre-requisites. Follow step by step instructions below for each method.
+You can run this PoC tool on your local machine (Terminal/Command Prompt) or in a Jupyter Instance. If you run it from your local machine you would need to setup few pre-requisites including Python3, AWS CLI and libraries like Pillow. If you do not want to configure any of these on your local machine, you can simply use a Jupyter instance which already has all the needed pre-requisites. Follow step by step instructions below for each method.
 
 ### Run RIA from Terminal/Command Prompt
 
