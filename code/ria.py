@@ -2061,9 +2061,9 @@ def run(cliMode, args):
 
         isInputValid = True
     except Exception as e:
-        print('Invalid input. Follow one the formats below. input-bucket is required, whereas all other parameters are optional.')
+        print('Invalid input. Use one the formats below. input-bucket is required, whereas all other parameters are optional.')
         print('- python3 ria.py --input-bucket your-bucket')
-        print('- python3 ria.py --input-bucket your-bucket --input-directory your-input-directory --output-bucket your-bucket --output-directory your-output-directory --min-confidence 50 --collection-id your-collection --s3-expiration-time 3600 --no-csv --no-api-labels --no-api-moderation-labels --no-api-celebrities --no-api-faces --no-api-text')
+        print('- python3 ria.py --input-bucket your-bucket --input-directory your-input-directory --output-bucket your-bucket --output-directory your-output-directory --min-confidence 55 --collection-id your-collection --s3-expiration-time 3600 --no-csv --no-api-labels --no-api-moderation-labels --no-api-celebrities --no-api-faces --no-api-text')
 
     if(isInputValid):
         lambda_handler(event, None)
